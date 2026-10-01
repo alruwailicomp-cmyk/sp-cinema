@@ -30,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* القائمة الجانبية والشعار */
         .sidebar {
             width: 260px;
             background-color: var(--card-bg);
@@ -87,7 +86,6 @@
             border: 1px dashed var(--border-color);
         }
 
-        /* منطقة المحتوى الرئيسي */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -114,7 +112,6 @@
             color: #fff;
         }
 
-        /* أزرار التصنيفات والفلترة */
         .categories-filter {
             display: flex;
             gap: 10px;
@@ -138,7 +135,6 @@
             border-color: var(--accent-color);
         }
 
-        /* شبكة عرض المحتوى */
         .media-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -163,7 +159,7 @@
 
         .media-poster {
             width: 100%;
-            height: 220px;
+            height: 240px;
             background-color: #21262d;
             display: flex;
             align-items: center;
@@ -171,13 +167,7 @@
             color: var(--text-muted);
             font-size: 0.95rem;
             text-align: center;
-            overflow: hidden;
-        }
-
-        .media-poster img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            padding: 10px;
         }
 
         .media-info {
@@ -199,13 +189,12 @@
             color: var(--text-muted);
         }
 
-        /* حاويات لوحة المطور وحالة السيرفر */
         .dev-panel-container, .status-container {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             padding: 25px;
             border-radius: 12px;
-            max-width: 600px;
+            max-width: 650px;
             margin-bottom: 25px;
         }
 
@@ -228,25 +217,6 @@
             border-radius: 8px;
             color: #fff;
             font-size: 0.95rem;
-        }
-
-        /* تصميم منطقة سحب وإفلات الصورة */
-        .drop-zone {
-            border: 2px dashed var(--border-color);
-            background: var(--bg-color);
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: 0.2s;
-            font-size: 0.9rem;
-        }
-
-        .drop-zone.dragover {
-            border-color: var(--accent-color);
-            background: rgba(46, 160, 67, 0.1);
-            color: #fff;
         }
 
         .submit-btn {
@@ -279,13 +249,12 @@
             background-color: #b32624;
         }
 
-        /* قائمة المستخدمين وقائمة المطورين */
-        .users-list, .devs-list {
+        .users-list, .devs-list, .episodes-temp-list {
             list-style: none;
             margin-top: 15px;
         }
 
-        .user-item, .dev-item {
+        .user-item, .dev-item, .ep-temp-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -306,7 +275,7 @@
             margin-left: 8px;
         }
 
-        /* نافذة تشغيل الفيديو المنبثقة */
+        /* النوافذ المنبثقة */
         .modal {
             display: none;
             position: fixed;
@@ -322,19 +291,21 @@
 
         .modal-content {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             width: 90%;
-            max-width: 900px;
+            max-width: 700px;
             border: 1px solid var(--border-color);
             position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         .modal-content video {
             width: 100%;
             height: auto;
-            min-height: 400px;
-            max-height: 75vh;
+            min-height: 350px;
+            max-height: 65vh;
             border-radius: 8px;
             background: #000;
             object-fit: contain;
@@ -349,6 +320,26 @@
             color: #fff;
             font-size: 1.8rem;
             cursor: pointer;
+        }
+
+        .episode-btn {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: right;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .episode-btn:hover {
+            background-color: rgba(46, 160, 67, 0.15);
+            border-color: var(--accent-color);
+            color: var(--accent-hover);
         }
     </style>
 </head>
@@ -384,6 +375,7 @@
             <h1>قسم الأفلام</h1>
             <div class="categories-filter" id="movies-filters">
                 <button class="filter-btn active" onclick="filterCategory('movies', 'all', this)">الكل</button>
+                <button class="filter-btn" onclick="filterCategory('movies', 'anime', this)">أنيمي</button>
                 <button class="filter-btn" onclick="filterCategory('movies', 'horror', this)">رعب</button>
                 <button class="filter-btn" onclick="filterCategory('movies', 'action', this)">أكشن</button>
                 <button class="filter-btn" onclick="filterCategory('movies', 'scifi', this)">خيال علمي</button>
@@ -397,6 +389,7 @@
             <h1>قسم المسلسلات</h1>
             <div class="categories-filter" id="series-filters">
                 <button class="filter-btn active" onclick="filterCategory('series', 'all', this)">الكل</button>
+                <button class="filter-btn" onclick="filterCategory('series', 'anime', this)">أنيمي</button>
                 <button class="filter-btn" onclick="filterCategory('series', 'mystery', this)">غموض</button>
                 <button class="filter-btn" onclick="filterCategory('series', 'drama', this)">دراما</button>
                 <button class="filter-btn" onclick="filterCategory('series', 'comedy', this)">كوميديا</button>
@@ -409,15 +402,17 @@
             <h1>حالة السيرفر</h1>
             <div class="status-container">
                 <p style="margin-bottom: 10px;">🟢 <strong>حالة السيرفر:</strong> متصل ويعمل بكفاءة عالية</p>
-                <p style="margin-bottom: 15px;">💾 <strong>المساحة المستخدمة:</strong> ديناميكي</p>
-                <h3 style="margin-bottom: 10px; color: #fff; font-size: 1.1rem;">المستخدمون المتصلون في الروم الآن (Discord):</h3>
+                <h3 style="margin-top: 15px; margin-bottom: 10px; color: #fff; font-size: 1.1rem;">المستخدمون المتصلون في الروم الآن:</h3>
                 <ul class="users-list" id="connectedUsersList">
-                    <li class="user-item"><span>جاري جلب المتصلين من ديسكورد...</span></li>
+                    <li class="user-item">
+                        <span><span class="user-status-dot"></span><strong>Khaled (أنت)</strong></span>
+                        <span style="color:var(--text-muted); font-size: 0.8rem;">مشرف (متصفح محلي)</span>
+                    </li>
                 </ul>
             </div>
         </div>
 
-        <!-- لوحة تحكم المطور (محمية) -->
+        <!-- لوحة تحكم المطور -->
         <div id="dev-panel" class="tab-content">
             <h1>لوحة تحكم المطور</h1>
             
@@ -427,7 +422,7 @@
                 <form id="addMediaForm" onsubmit="addNewMedia(event)">
                     <div class="form-group">
                         <label>نوع العمل:</label>
-                        <select id="mediaType" required>
+                        <select id="mediaType" onchange="toggleMediaTypeInputs()" required>
                             <option value="movies">فيلم</option>
                             <option value="series">مسلسل</option>
                         </select>
@@ -435,6 +430,7 @@
                     <div class="form-group">
                         <label>التصنيف الفرعي:</label>
                         <select id="mediaCategory" required>
+                            <option value="anime">أنيمي</option>
                             <option value="horror">رعب</option>
                             <option value="action">أكشن</option>
                             <option value="scifi">خيال علمي</option>
@@ -447,19 +443,30 @@
                         <label>اسم العمل:</label>
                         <input type="text" id="mediaTitleInput" placeholder="أدخل اسم الفيلم أو المسلسل" required>
                     </div>
-                    <div class="form-group">
-                        <label>رابط الفيديو المباشر (MP4 / رابط استضافة):</label>
-                        <input type="url" id="mediaUrlInput" placeholder="https://..." required>
+
+                    <!-- رابط الفيلم (يظهر إذا كان النوع فيلم) -->
+                    <div class="form-group" id="movieUrlGroup">
+                        <label>رابط الفيديو المباشر للفيلم (MP4):</label>
+                        <input type="url" id="mediaUrlInput" placeholder="https://...">
                     </div>
-                    <!-- خانة سحب وإفلات أو اختيار صورة الغلاف -->
-                    <div class="form-group">
-                        <label>صورة الغلاف (Poster):</label>
-                        <div id="dropZone" class="drop-zone">
-                            <span id="dropText">📁 اسحب صورة الغلاف هنا أو اضغط للاختيار من الجهاز</span>
-                            <input type="file" id="mediaImageInput" accept="image/*" style="display: none;">
+
+                    <!-- إدارة المواسم والحلقات للمسلسل (تظهر إذا كان النوع مسلسل) -->
+                    <div class="form-group" id="seriesEpisodesGroup" style="display: none;">
+                        <label>إدارة المواسم والحلقات:</label>
+                        <div style="margin-bottom: 8px;">
+                            <input type="text" id="seasonTitleInput" placeholder="اسم أو رقم الموسم (مثال: الموسم الأول)" style="margin-bottom: 8px;">
                         </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="epTitleInput" placeholder="اسم الحلقة (مثال: الحلقة 1)" style="flex: 1;">
+                            <input type="url" id="epUrlInput" placeholder="رابط فيديو الحلقة (MP4)" style="flex: 2;">
+                            <button type="button" class="submit-btn" onclick="addEpisodeToSeasonTemp()" style="padding: 0 15px;">إضافة للحلقة</button>
+                        </div>
+                        <ul class="episodes-temp-list" id="seasonsTempList">
+                            <li style="color: var(--text-muted); font-size: 0.85rem;" id="noEpText">لم يتم إضافة مواسم أو حلقات بعد.</li>
+                        </ul>
                     </div>
-                    <button type="submit" class="submit-btn">إضافة وعرض في السيرفر</button>
+
+                    <button type="submit" class="submit-btn" style="margin-top: 10px;">حفظ وإضافة العمل للسيرفر</button>
                 </form>
             </div>
 
@@ -475,12 +482,12 @@
                 </form>
             </div>
 
-            <!-- إدارة صلاحيات الأصدقاء -->
+            <!-- إدارة الصلاحيات -->
             <div class="dev-panel-container">
-                <h3 style="margin-bottom: 15px; color: #fff;">إدارة صلاحيات المطورين للأصدقاء</h3>
+                <h3 style="margin-bottom: 15px; color: #fff;">إدارة صلاحيات المطورين</h3>
                 <form id="addDevFriendForm" onsubmit="addDevFriend(event)">
                     <div class="form-group">
-                        <label>اسم أو معرف الصديق في ديسكورد (Discord Username):</label>
+                        <label>اسم الصديق المصرح له:</label>
                         <input type="text" id="devFriendInput" placeholder="مثال: Khaled_Dev" required>
                     </div>
                     <button type="submit" class="submit-btn">منح صلاحية مطور</button>
@@ -492,8 +499,17 @@
 
     </div>
 
+    <!-- نافذة عرض المواسم والحلقات للمسلسلات -->
+    <div id="episodesModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeEpisodesModal()">&times;</button>
+            <h2 id="episodesModalTitle" style="margin-bottom: 15px; color: #fff; font-size: 1.3rem;"></h2>
+            <div id="seasonsContainer" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        </div>
+    </div>
+
     <!-- نافذة تشغيل الفيديو -->
-    <div id="videoModal" class="modal">
+    <div id="videoModal" class="modal" style="z-index: 1010;">
         <div class="modal-content">
             <button class="close-modal" onclick="closePlayer()">&times;</button>
             <h2 id="modalTitle" style="margin-bottom: 15px; color: #fff; font-size: 1.2rem;"></h2>
@@ -503,132 +519,105 @@
         </div>
     </div>
 
-    <!-- استدعاء Discord Embedded App SDK عبر CDN -->
-    <script type="module">
-        import { DiscordSDK } from "https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@2.5.0/+esm";
+    <script>
+        let mediaList = JSON.parse(localStorage.getItem('assembly_media')) || [];
+        let devFriends = JSON.parse(localStorage.getItem('assembly_dev_friends')) || [];
+        let tempSeasons = []; // مصفوفة مؤقتة لتخزين المواسم والحلقات أثناء الإضافة
 
-        const discordClientId = "YOUR_DISCORD_CLIENT_ID"; 
-        let discordSdk = null;
-        let currentDiscordUser = null;
+        function toggleMediaTypeInputs() {
+            const type = document.getElementById('mediaType').value;
+            const movieGroup = document.getElementById('movieUrlGroup');
+            const seriesGroup = document.getElementById('seriesEpisodesGroup');
+            const movieInput = document.getElementById('mediaUrlInput');
 
-        window.initDiscord = async function() {
-            try {
-                discordSdk = new DiscordSDK(discordClientId);
-                await discordSdk.ready();
-                
-                const auth = await discordSdk.commands.authenticate({ access_token: await getAccessToken() });
-                if (auth && auth.user) {
-                    currentDiscordUser = auth.user.username;
-                }
-
-                const participants = await discordSdk.commands.getInstanceConnectedParticipants();
-                renderParticipants(participants.users);
-            } catch (e) {
-                renderFallbackParticipants();
+            if (type === 'movies') {
+                movieGroup.style.display = 'block';
+                seriesGroup.style.display = 'none';
+                movieInput.required = true;
+            } else {
+                movieGroup.style.display = 'none';
+                seriesGroup.style.display = 'block';
+                movieInput.required = false;
             }
-        };
-
-        async function getAccessToken() {
-            return "mock_token";
         }
 
-        function renderParticipants(users) {
-            const usersList = document.getElementById('connectedUsersList');
-            usersList.innerHTML = '';
-            if(!users || users.length === 0) {
-                renderFallbackParticipants();
+        function addEpisodeToSeasonTemp() {
+            const seasonTitleInput = document.getElementById('seasonTitleInput');
+            const epTitleInput = document.getElementById('epTitleInput');
+            const epUrlInput = document.getElementById('epUrlInput');
+
+            const seasonTitle = seasonTitleInput.value.trim();
+            const epTitle = epTitleInput.value.trim();
+            const epUrl = epUrlInput.value.trim();
+
+            if (!seasonTitle || !epTitle || !epUrl) {
+                alert("يرجى إدخال اسم الموسم، اسم الحلقة، ورابط الفيديو.");
                 return;
             }
-            users.forEach(user => {
-                usersList.innerHTML += `
-                    <li class="user-item">
-                        <span><span class="user-status-dot"></span><strong>${user.username}</strong></span>
-                        <span style="color:var(--text-muted); font-size: 0.8rem;">متصل بالروم</span>
+
+            // البحث عما إذا كان الموسم موجود مسبقاً في القائمة المؤقتة
+            let season = tempSeasons.find(s => s.seasonTitle === seasonTitle);
+            if (!season) {
+                season = { seasonTitle: seasonTitle, episodes: [] };
+                tempSeasons.push(season);
+            }
+
+            season.episodes.push({ title: epTitle, url: epUrl });
+
+            // تفريغ حقول الحلقة فقط لتسهيل إضافة حلقات أخرى لنفس الموسم
+            epTitleInput.value = '';
+            epUrlInput.value = '';
+            renderTempSeasons();
+        }
+
+        function renderTempSeasons() {
+            const list = document.getElementById('seasonsTempList');
+            list.innerHTML = '';
+            if (tempSeasons.length === 0) {
+                list.innerHTML = '<li style="color: var(--text-muted); font-size: 0.85rem;" id="noEpText">لم يتم إضافة مواسم أو حلقات بعد لهذا المسلسل.</li>';
+                return;
+            }
+
+            tempSeasons.forEach((season, sIndex) => {
+                let episodesHtml = season.episodes.map((ep, eIndex) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.85rem;">
+                        <span>▶ ${ep.title}</span>
+                        <button type="button" class="remove-dev-btn" style="padding: 2px 8px; font-size: 0.75rem;" onclick="removeTempEpisode(${sIndex}, ${eIndex})">حذف</button>
+                    </div>
+                `).join('');
+
+                list.innerHTML += `
+                    <li class="ep-temp-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--accent-hover);">
+                            <span>📁 ${season.seasonTitle}</span>
+                            <button type="button" class="remove-dev-btn" style="padding: 2px 8px; font-size: 0.75rem;" onclick="removeTempSeason(${sIndex})">حذف الموسم</button>
+                        </div>
+                        <div style="padding-right: 10px;">${episodesHtml}</div>
                     </li>
                 `;
             });
         }
 
-        function renderFallbackParticipants() {
-            const usersList = document.getElementById('connectedUsersList');
-            usersList.innerHTML = `
-                <li class="user-item">
-                    <span><span class="user-status-dot"></span><strong>Khaled (أنت)</strong></span>
-                    <span style="color:var(--text-muted); font-size: 0.8rem;">مشرف (متصفح محلي)</span>
-                </li>
-                <li class="user-item">
-                    <span><span class="user-status-dot"></span><strong>صديق 1 (تجريبي)</strong></span>
-                    <span style="color:var(--text-muted); font-size: 0.8rem;">مشاهد</span>
-                </li>
-            `;
+        function removeTempEpisode(sIndex, eIndex) {
+            tempSeasons[sIndex].episodes.splice(eIndex, 1);
+            if (tempSeasons[sIndex].episodes.length === 0) {
+                tempSeasons.splice(sIndex, 1);
+            }
+            renderTempSeasons();
         }
 
-        window.checkDevAccess = function() {
-            let inputKey = prompt("أدخل كلمة المرور أو اسم المستخدم الخاص بك في ديسكورد:");
-            const masterPass = "24680";
-            let devFriends = JSON.parse(localStorage.getItem('assembly_dev_friends')) || [];
-
-            if (inputKey === masterPass || (currentDiscordUser && currentDiscordUser.toLowerCase() === inputKey.toLowerCase()) || devFriends.includes(inputKey)) {
-                return true;
-            }
-            alert("عذراً، ليس لديك صلاحية مطور!");
-            return false;
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            window.initDiscord();
-        });
-    </script>
-
-    <script>
-        // إدارة رفع الصور وسحبها وإفلاتها
-        let uploadedPosterBase64 = "";
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('mediaImageInput');
-        const dropText = document.getElementById('dropText');
-
-        dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                handleImageFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files.length > 0) {
-                handleImageFile(e.target.files[0]);
-            }
-        });
-
-        function handleImageFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert("الرجاء اختيار ملف صورة صالح!");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                uploadedPosterBase64 = event.target.result;
-                dropText.textContent = `✅ تم اختيار الصورة: ${file.name}`;
-                dropZone.style.borderColor = 'var(--accent-color)';
-            };
-            reader.readAsDataURL(file);
+        function removeTempSeason(sIndex) {
+            tempSeasons.splice(sIndex, 1);
+            renderTempSeasons();
         }
 
         function accessDevPanel(event) {
-            if (window.checkDevAccess && window.checkDevAccess()) {
+            let inputKey = prompt("أدخل كلمة المرور أو اسم المستخدم الخاص بك:");
+            const masterPass = "24680";
+            if (inputKey === masterPass || devFriends.includes(inputKey)) {
                 switchTab('dev-panel', event);
+            } else {
+                alert("عذراً، ليس لديك صلاحية مطور!");
             }
         }
 
@@ -639,9 +628,6 @@
             document.getElementById(tabId).classList.add('active');
             if(event) event.currentTarget.classList.add('active');
         }
-
-        let mediaList = JSON.parse(localStorage.getItem('assembly_media')) || [];
-        let devFriends = JSON.parse(localStorage.getItem('assembly_dev_friends')) || [];
 
         function renderMedia() {
             const homeGrid = document.getElementById('home-grid');
@@ -655,18 +641,13 @@
             mediaSelectToDelete.innerHTML = '<option value="" disabled selected>اختر العمل للحذف...</option>';
 
             if (mediaList.length === 0) {
-                homeGrid.innerHTML = '<p style="color:var(--text-muted)">لا توجد أعمال مضافة حالياً. استخدم لوحة المطور لإضافة محتوى.</p>';
+                homeGrid.innerHTML = '<p style="color:var(--text-muted)">لا توجد أعمال مضافة حالياً.</p>';
             }
 
             mediaList.forEach((item, index) => {
-                // إذا وُجدت صورة مرفوعة، يتم عرضها، وإلا يظهر اسم العمل كبديل
-                const posterContent = item.posterUrl 
-                    ? `<img src="${item.posterUrl}" alt="${item.title}">` 
-                    : item.title;
-
                 const cardHtml = `
-                    <div class="media-card" data-category="${item.category}" onclick="openPlayer('${item.title}', '${item.url}')">
-                        <div class="media-poster">${posterContent}</div>
+                    <div class="media-card" data-category="${item.category}" onclick="handleMediaClick(${index})">
+                        <div class="media-poster">${item.title}</div>
                         <div class="media-info">
                             <div class="media-title">${item.title}</div>
                             <div class="media-meta">${item.type === 'movies' ? 'فيلم' : 'مسلسل'} • ${item.category}</div>
@@ -684,92 +665,47 @@
             });
         }
 
-        function renderDevFriends() {
-            const list = document.getElementById('devFriendsList');
-            list.innerHTML = '';
-            if (devFriends.length === 0) {
-                list.innerHTML = '<li style="color:var(--text-muted); font-size:0.85rem;">لا يوجد أصدقاء مصرح لهم حالياً.</li>';
-                return;
-            }
-            devFriends.forEach((friend, idx) => {
-                list.innerHTML += `
-                    <li class="dev-item">
-                        <span>👤 <strong>${friend}</strong></span>
-                        <button class="remove-dev-btn" onclick="removeDevFriend(${idx})">إلغاء الصلاحية</button>
-                    </li>
-                `;
-            });
-        }
-
-        function addDevFriend(event) {
-            event.preventDefault();
-            const friendName = document.getElementById('devFriendInput').value.trim();
-            if (friendName && !devFriends.includes(friendName)) {
-                devFriends.push(friendName);
-                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
-                document.getElementById('addDevFriendForm').reset();
-                renderDevFriends();
-                alert(`تم منح صلاحية المطور لـ "${friendName}" بنجاح!`);
+        function handleMediaClick(index) {
+            const item = mediaList[index];
+            if (item.type === 'movies') {
+                openPlayer(item.title, item.url);
+            } else {
+                openEpisodesModal(item);
             }
         }
 
-        function removeDevFriend(index) {
-            if (confirm("هل أنت متأكد من إزالة صلاحية المطور عن هذا الصديق؟")) {
-                devFriends.splice(index, 1);
-                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
-                renderDevFriends();
+        function openEpisodesModal(series) {
+            const modal = document.getElementById('episodesModal');
+            document.getElementById('episodesModalTitle').textContent = series.title;
+            const container = document.getElementById('seasonsContainer');
+            container.innerHTML = '';
+
+            if (!series.seasons || series.seasons.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted)">لا توجد مواسم أو حلقات مضافة لهذا المسلسل بعد.</p>';
+            } else {
+                series.seasons.forEach((season) => {
+                    let episodesHtml = season.episodes.map(ep => `
+                        <button class="episode-btn" onclick="openPlayer('${series.title} - ${season.seasonTitle} - ${ep.title}', '${ep.url}')">
+                            <span>▶ ${ep.title}</span>
+                            <span style="font-size: 0.8rem; color: var(--accent-hover);">تشغيل</span>
+                        </button>
+                    `).join('');
+
+                    container.innerHTML += `
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px;">
+                            <h3 style="color: var(--accent-hover); font-size: 1.05rem; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">📁 ${season.seasonTitle}</h3>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${episodesHtml}
+                            </div>
+                        </div>
+                    `;
+                });
             }
+            modal.style.display = 'flex';
         }
 
-        function addNewMedia(event) {
-            event.preventDefault();
-            const type = document.getElementById('mediaType').value;
-            const category = document.getElementById('mediaCategory').value;
-            const title = document.getElementById('mediaTitleInput').value;
-            const url = document.getElementById('mediaUrlInput').value;
-            const posterUrl = uploadedPosterBase64; // حفظ الصورة المحولة
-
-            mediaList.push({ type, category, title, url, posterUrl });
-            localStorage.setItem('assembly_media', JSON.stringify(mediaList));
-
-            alert("تم إضافة العمل بنجاح!");
-            document.getElementById('addMediaForm').reset();
-            
-            // إعادة تعيين منطقة السحب والإفلات
-            uploadedPosterBase64 = "";
-            dropText.textContent = "📁 اسحب صورة الغلاف هنا أو اضغط للاختيار من الجهاز";
-            dropZone.style.borderColor = "var(--border-color)";
-
-            renderMedia();
-            switchTab('home');
-        }
-
-        function deleteSelectedMedia(event) {
-            event.preventDefault();
-            const selectIndex = document.getElementById('mediaSelectToDelete').value;
-            if (selectIndex !== "") {
-                if (confirm("هل أنت متأكد من حذف هذا العمل نهائياً؟")) {
-                    mediaList.splice(selectIndex, 1);
-                    localStorage.setItem('assembly_media', JSON.stringify(mediaList));
-                    renderMedia();
-                    alert("تم حذف العمل بنجاح!");
-                }
-            }
-        }
-
-        function filterCategory(section, category, btn) {
-            const container = document.getElementById(section + '-filters');
-            container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const grid = document.getElementById(section + '-grid');
-            grid.querySelectorAll('.media-card').forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+        function closeEpisodesModal() {
+            document.getElementById('episodesModal').style.display = 'none';
         }
 
         function openPlayer(title, videoUrl) {
@@ -789,8 +725,103 @@
             const modal = document.getElementById('videoModal');
             const video = document.getElementById('modalVideo');
             video.pause();
-            video.src = ""; 
+            video.src = "";
             modal.style.display = 'none';
+        }
+
+        function addNewMedia(event) {
+            event.preventDefault();
+            const type = document.getElementById('mediaType').value;
+            const category = document.getElementById('mediaCategory').value;
+            const title = document.getElementById('mediaTitleInput').value.trim();
+
+            let newMedia = { type, category, title };
+
+            if (type === 'movies') {
+                newMedia.url = document.getElementById('mediaUrlInput').value.trim();
+            } else {
+                if (tempSeasons.length === 0) {
+                    alert("يرجى إضافة موسم واحد على الأقل مع حلقاته.");
+                    return;
+                }
+                newMedia.seasons = [...tempSeasons];
+            }
+
+            mediaList.push(newMedia);
+            localStorage.setItem('assembly_media', JSON.stringify(mediaList));
+
+            alert("تم إضافة العمل بنجاح!");
+            document.getElementById('addMediaForm').reset();
+            tempSeasons = [];
+            renderTempSeasons();
+            toggleMediaTypeInputs();
+            renderMedia();
+            switchTab('home');
+        }
+
+        function deleteSelectedMedia(event) {
+            event.preventDefault();
+            const selectIndex = document.getElementById('mediaSelectToDelete').value;
+            if (selectIndex !== "") {
+                if (confirm("هل أنت متأكد من حذف هذا العمل نهائياً؟")) {
+                    mediaList.splice(selectIndex, 1);
+                    localStorage.setItem('assembly_media', JSON.stringify(mediaList));
+                    renderMedia();
+                    alert("تم حذف العمل بنجاح!");
+                }
+            }
+        }
+
+        function addDevFriend(event) {
+            event.preventDefault();
+            const friendName = document.getElementById('devFriendInput').value.trim();
+            if (friendName && !devFriends.includes(friendName)) {
+                devFriends.push(friendName);
+                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
+                document.getElementById('addDevFriendForm').reset();
+                renderDevFriends();
+                alert(`تم منح صلاحية المطور لـ "${friendName}" بنجاح!`);
+            }
+        }
+
+        function renderDevFriends() {
+            const list = document.getElementById('devFriendsList');
+            list.innerHTML = '';
+            if (devFriends.length === 0) {
+                list.innerHTML = '<li style="color:var(--text-muted); font-size:0.85rem;">لا يوجد أصدقاء مصرح لهم حالياً.</li>';
+                return;
+            }
+            devFriends.forEach((friend, idx) => {
+                list.innerHTML += `
+                    <li class="dev-item">
+                        <span>👤 <strong>${friend}</strong></span>
+                        <button class="remove-dev-btn" onclick="removeDevFriend(${idx})">إلغاء الصلاحية</button>
+                    </li>
+                `;
+            });
+        }
+
+        function removeDevFriend(index) {
+            if (confirm("هل أنت متأكد من إزالة صلاحية المطور؟")) {
+                devFriends.splice(index, 1);
+                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
+                renderDevFriends();
+            }
+        }
+
+        function filterCategory(section, category, btn) {
+            const container = document.getElementById(section + '-filters');
+            container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const grid = document.getElementById(section + '-grid');
+            grid.querySelectorAll('.media-card').forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         window.onload = function() {
