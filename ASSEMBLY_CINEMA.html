@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Cinema - Media Server</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --accent-color: #2ea043;
+            --accent-hover: #3fb950;
+            --text-color: #c9d1d9;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --danger-color: #da3633;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* القائمة الجانبية والشعار */
+        .sidebar {
+            width: 260px;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-container img {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .logo-container h2 {
+            font-size: 0.90rem;
+            color: #fff;
+        }
+
+        .nav-tabs {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background-color: rgba(46, 160, 67, 0.15);
+            color: var(--accent-hover);
+        }
+
+        .nav-tab.dev-tab {
+            margin-top: auto;
+            border: 1px dashed var(--border-color);
+        }
+
+        /* منطقة المحتوى الرئيسي */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        /* أزرار التصنيفات والفلترة */
+        .categories-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        /* شبكة عرض المحتوى */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .media-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border-color: var(--accent-color);
+        }
+
+        .media-poster {
+            width: 100%;
+            height: 220px;
+            background-color: #21262d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .media-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-info {
+            padding: 12px;
+        }
+
+        .media-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* حاويات لوحة المطور وحالة السيرفر */
+        .dev-panel-container, .status-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        /* تصميم منطقة سحب وإفلات الصورة */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            background: var(--bg-color);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--accent-color);
+            background: rgba(46, 160, 67, 0.1);
+            color: #fff;
+        }
+
+        .submit-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .delete-submit-btn, .remove-dev-btn {
+            background-color: var(--danger-color);
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .delete-submit-btn:hover, .remove-dev-btn:hover {
+            background-color: #b32624;
+        }
+
+        /* قائمة المستخدمين وقائمة المطورين */
+        .users-list, .devs-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .user-item, .dev-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .user-status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        /* نافذة تشغيل الفيديو المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .modal-content video {
+            width: 100%;
+            height: auto;
+            min-height: 400px;
+            max-height: 75vh;
+            border-radius: 8px;
+            background: #000;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="ASSEMBLY_CINEMA_LOGO.jpg" alt="Assembly Cinema Logo">
+            <h2>ASSEMBLY CINEMA</h2>
+        </div>
+        <ul class="nav-tabs">
+            <li class="nav-tab active" onclick="switchTab('home', event)">الرئيسية</li>
+            <li class="nav-tab" onclick="switchTab('movies', event)">الأفلام</li>
+            <li class="nav-tab" onclick="switchTab('series', event)">المسلسلات</li>
+            <li class="nav-tab" onclick="switchTab('server-status', event)">حالة السيرفر</li>
+            <li class="nav-tab dev-tab" onclick="accessDevPanel(event)">🔒 لوحة المطور</li>
+        </ul>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        
+        <!-- الرئيسية -->
+        <div id="home" class="tab-content active">
+            <h1>مرحباً بك في سيرفر العرض</h1>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">الأعمال المضافة مؤخراً للمشاهدة الجماعية.</p>
+            <div class="media-grid" id="home-grid"></div>
+        </div>
+
+        <!-- الأفلام -->
+        <div id="movies" class="tab-content">
+            <h1>قسم الأفلام</h1>
+            <div class="categories-filter" id="movies-filters">
+                <button class="filter-btn active" onclick="filterCategory('movies', 'all', this)">الكل</button>
+                <button class="filter-btn" onclick="filterCategory('movies', 'horror', this)">رعب</button>
+                <button class="filter-btn" onclick="filterCategory('movies', 'action', this)">أكشن</button>
+                <button class="filter-btn" onclick="filterCategory('movies', 'scifi', this)">خيال علمي</button>
+                <button class="filter-btn" onclick="filterCategory('movies', 'comedy', this)">كوميديا</button>
+            </div>
+            <div class="media-grid" id="movies-grid"></div>
+        </div>
+
+        <!-- المسلسلات -->
+        <div id="series" class="tab-content">
+            <h1>قسم المسلسلات</h1>
+            <div class="categories-filter" id="series-filters">
+                <button class="filter-btn active" onclick="filterCategory('series', 'all', this)">الكل</button>
+                <button class="filter-btn" onclick="filterCategory('series', 'mystery', this)">غموض</button>
+                <button class="filter-btn" onclick="filterCategory('series', 'drama', this)">دراما</button>
+                <button class="filter-btn" onclick="filterCategory('series', 'comedy', this)">كوميديا</button>
+            </div>
+            <div class="media-grid" id="series-grid"></div>
+        </div>
+
+        <!-- حالة السيرفر -->
+        <div id="server-status" class="tab-content">
+            <h1>حالة السيرفر</h1>
+            <div class="status-container">
+                <p style="margin-bottom: 10px;">🟢 <strong>حالة السيرفر:</strong> متصل ويعمل بكفاءة عالية</p>
+                <p style="margin-bottom: 15px;">💾 <strong>المساحة المستخدمة:</strong> ديناميكي</p>
+                <h3 style="margin-bottom: 10px; color: #fff; font-size: 1.1rem;">المستخدمون المتصلون في الروم الآن (Discord):</h3>
+                <ul class="users-list" id="connectedUsersList">
+                    <li class="user-item"><span>جاري جلب المتصلين من ديسكورد...</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- لوحة تحكم المطور (محمية) -->
+        <div id="dev-panel" class="tab-content">
+            <h1>لوحة تحكم المطور</h1>
+            
+            <!-- إضافة عمل جديد -->
+            <div class="dev-panel-container">
+                <h3 style="margin-bottom: 15px; color: #fff;">إضافة عمل جديد (فيلم أو مسلسل)</h3>
+                <form id="addMediaForm" onsubmit="addNewMedia(event)">
+                    <div class="form-group">
+                        <label>نوع العمل:</label>
+                        <select id="mediaType" required>
+                            <option value="movies">فيلم</option>
+                            <option value="series">مسلسل</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>التصنيف الفرعي:</label>
+                        <select id="mediaCategory" required>
+                            <option value="horror">رعب</option>
+                            <option value="action">أكشن</option>
+                            <option value="scifi">خيال علمي</option>
+                            <option value="mystery">غموض</option>
+                            <option value="drama">دراما</option>
+                            <option value="comedy">كوميديا</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم العمل:</label>
+                        <input type="text" id="mediaTitleInput" placeholder="أدخل اسم الفيلم أو المسلسل" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رابط الفيديو المباشر (MP4 / رابط استضافة):</label>
+                        <input type="url" id="mediaUrlInput" placeholder="https://..." required>
+                    </div>
+                    <!-- خانة سحب وإفلات أو اختيار صورة الغلاف -->
+                    <div class="form-group">
+                        <label>صورة الغلاف (Poster):</label>
+                        <div id="dropZone" class="drop-zone">
+                            <span id="dropText">📁 اسحب صورة الغلاف هنا أو اضغط للاختيار من الجهاز</span>
+                            <input type="file" id="mediaImageInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">إضافة وعرض في السيرفر</button>
+                </form>
+            </div>
+
+            <!-- حذف عمل -->
+            <div class="dev-panel-container">
+                <h3 style="margin-bottom: 15px; color: #fff;">حذف عمل من السيرفر</h3>
+                <form id="deleteMediaForm" onsubmit="deleteSelectedMedia(event)">
+                    <div class="form-group">
+                        <label>اختر العمل المراد حذفه:</label>
+                        <select id="mediaSelectToDelete" required></select>
+                    </div>
+                    <button type="submit" class="delete-submit-btn">حذف العمل المحدد</button>
+                </form>
+            </div>
+
+            <!-- إدارة صلاحيات الأصدقاء -->
+            <div class="dev-panel-container">
+                <h3 style="margin-bottom: 15px; color: #fff;">إدارة صلاحيات المطورين للأصدقاء</h3>
+                <form id="addDevFriendForm" onsubmit="addDevFriend(event)">
+                    <div class="form-group">
+                        <label>اسم أو معرف الصديق في ديسكورد (Discord Username):</label>
+                        <input type="text" id="devFriendInput" placeholder="مثال: Khaled_Dev" required>
+                    </div>
+                    <button type="submit" class="submit-btn">منح صلاحية مطور</button>
+                </form>
+                <h4 style="margin-top: 20px; margin-bottom: 10px; color: #fff; font-size: 0.95rem;">قائمة الأصدقاء المصرح لهم:</h4>
+                <ul class="devs-list" id="devFriendsList"></ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- نافذة تشغيل الفيديو -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closePlayer()">&times;</button>
+            <h2 id="modalTitle" style="margin-bottom: 15px; color: #fff; font-size: 1.2rem;"></h2>
+            <video id="modalVideo" controls>
+                متصفحك لا يدعم تشغيل الفيديو.
+            </video>
+        </div>
+    </div>
+
+    <!-- استدعاء Discord Embedded App SDK عبر CDN -->
+    <script type="module">
+        import { DiscordSDK } from "https://cdn.jsdelivr.net/npm/@discord/embedded-app-sdk@2.5.0/+esm";
+
+        const discordClientId = "YOUR_DISCORD_CLIENT_ID"; 
+        let discordSdk = null;
+        let currentDiscordUser = null;
+
+        window.initDiscord = async function() {
+            try {
+                discordSdk = new DiscordSDK(discordClientId);
+                await discordSdk.ready();
+                
+                const auth = await discordSdk.commands.authenticate({ access_token: await getAccessToken() });
+                if (auth && auth.user) {
+                    currentDiscordUser = auth.user.username;
+                }
+
+                const participants = await discordSdk.commands.getInstanceConnectedParticipants();
+                renderParticipants(participants.users);
+            } catch (e) {
+                renderFallbackParticipants();
+            }
+        };
+
+        async function getAccessToken() {
+            return "mock_token";
+        }
+
+        function renderParticipants(users) {
+            const usersList = document.getElementById('connectedUsersList');
+            usersList.innerHTML = '';
+            if(!users || users.length === 0) {
+                renderFallbackParticipants();
+                return;
+            }
+            users.forEach(user => {
+                usersList.innerHTML += `
+                    <li class="user-item">
+                        <span><span class="user-status-dot"></span><strong>${user.username}</strong></span>
+                        <span style="color:var(--text-muted); font-size: 0.8rem;">متصل بالروم</span>
+                    </li>
+                `;
+            });
+        }
+
+        function renderFallbackParticipants() {
+            const usersList = document.getElementById('connectedUsersList');
+            usersList.innerHTML = `
+                <li class="user-item">
+                    <span><span class="user-status-dot"></span><strong>Khaled (أنت)</strong></span>
+                    <span style="color:var(--text-muted); font-size: 0.8rem;">مشرف (متصفح محلي)</span>
+                </li>
+                <li class="user-item">
+                    <span><span class="user-status-dot"></span><strong>صديق 1 (تجريبي)</strong></span>
+                    <span style="color:var(--text-muted); font-size: 0.8rem;">مشاهد</span>
+                </li>
+            `;
+        }
+
+        window.checkDevAccess = function() {
+            let inputKey = prompt("أدخل كلمة المرور أو اسم المستخدم الخاص بك في ديسكورد:");
+            const masterPass = "24680";
+            let devFriends = JSON.parse(localStorage.getItem('assembly_dev_friends')) || [];
+
+            if (inputKey === masterPass || (currentDiscordUser && currentDiscordUser.toLowerCase() === inputKey.toLowerCase()) || devFriends.includes(inputKey)) {
+                return true;
+            }
+            alert("عذراً، ليس لديك صلاحية مطور!");
+            return false;
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.initDiscord();
+        });
+    </script>
+
+    <script>
+        // إدارة رفع الصور وسحبها وإفلاتها
+        let uploadedPosterBase64 = "";
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('mediaImageInput');
+        const dropText = document.getElementById('dropText');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleImageFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleImageFile(e.target.files[0]);
+            }
+        });
+
+        function handleImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert("الرجاء اختيار ملف صورة صالح!");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedPosterBase64 = event.target.result;
+                dropText.textContent = `✅ تم اختيار الصورة: ${file.name}`;
+                dropZone.style.borderColor = 'var(--accent-color)';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function accessDevPanel(event) {
+            if (window.checkDevAccess && window.checkDevAccess()) {
+                switchTab('dev-panel', event);
+            }
+        }
+
+        function switchTab(tabId, event) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
+        }
+
+        let mediaList = JSON.parse(localStorage.getItem('assembly_media')) || [];
+        let devFriends = JSON.parse(localStorage.getItem('assembly_dev_friends')) || [];
+
+        function renderMedia() {
+            const homeGrid = document.getElementById('home-grid');
+            const moviesGrid = document.getElementById('movies-grid');
+            const seriesGrid = document.getElementById('series-grid');
+            const mediaSelectToDelete = document.getElementById('mediaSelectToDelete');
+
+            homeGrid.innerHTML = '';
+            moviesGrid.innerHTML = '';
+            seriesGrid.innerHTML = '';
+            mediaSelectToDelete.innerHTML = '<option value="" disabled selected>اختر العمل للحذف...</option>';
+
+            if (mediaList.length === 0) {
+                homeGrid.innerHTML = '<p style="color:var(--text-muted)">لا توجد أعمال مضافة حالياً. استخدم لوحة المطور لإضافة محتوى.</p>';
+            }
+
+            mediaList.forEach((item, index) => {
+                // إذا وُجدت صورة مرفوعة، يتم عرضها، وإلا يظهر اسم العمل كبديل
+                const posterContent = item.posterUrl 
+                    ? `<img src="${item.posterUrl}" alt="${item.title}">` 
+                    : item.title;
+
+                const cardHtml = `
+                    <div class="media-card" data-category="${item.category}" onclick="openPlayer('${item.title}', '${item.url}')">
+                        <div class="media-poster">${posterContent}</div>
+                        <div class="media-info">
+                            <div class="media-title">${item.title}</div>
+                            <div class="media-meta">${item.type === 'movies' ? 'فيلم' : 'مسلسل'} • ${item.category}</div>
+                        </div>
+                    </div>
+                `;
+
+                homeGrid.innerHTML += cardHtml;
+                if (item.type === 'movies') {
+                    moviesGrid.innerHTML += cardHtml;
+                } else {
+                    seriesGrid.innerHTML += cardHtml;
+                }
+                mediaSelectToDelete.innerHTML += `<option value="${index}">${item.title} (${item.type === 'movies' ? 'فيلم' : 'مسلسل'})</option>`;
+            });
+        }
+
+        function renderDevFriends() {
+            const list = document.getElementById('devFriendsList');
+            list.innerHTML = '';
+            if (devFriends.length === 0) {
+                list.innerHTML = '<li style="color:var(--text-muted); font-size:0.85rem;">لا يوجد أصدقاء مصرح لهم حالياً.</li>';
+                return;
+            }
+            devFriends.forEach((friend, idx) => {
+                list.innerHTML += `
+                    <li class="dev-item">
+                        <span>👤 <strong>${friend}</strong></span>
+                        <button class="remove-dev-btn" onclick="removeDevFriend(${idx})">إلغاء الصلاحية</button>
+                    </li>
+                `;
+            });
+        }
+
+        function addDevFriend(event) {
+            event.preventDefault();
+            const friendName = document.getElementById('devFriendInput').value.trim();
+            if (friendName && !devFriends.includes(friendName)) {
+                devFriends.push(friendName);
+                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
+                document.getElementById('addDevFriendForm').reset();
+                renderDevFriends();
+                alert(`تم منح صلاحية المطور لـ "${friendName}" بنجاح!`);
+            }
+        }
+
+        function removeDevFriend(index) {
+            if (confirm("هل أنت متأكد من إزالة صلاحية المطور عن هذا الصديق؟")) {
+                devFriends.splice(index, 1);
+                localStorage.setItem('assembly_dev_friends', JSON.stringify(devFriends));
+                renderDevFriends();
+            }
+        }
+
+        function addNewMedia(event) {
+            event.preventDefault();
+            const type = document.getElementById('mediaType').value;
+            const category = document.getElementById('mediaCategory').value;
+            const title = document.getElementById('mediaTitleInput').value;
+            const url = document.getElementById('mediaUrlInput').value;
+            const posterUrl = uploadedPosterBase64; // حفظ الصورة المحولة
+
+            mediaList.push({ type, category, title, url, posterUrl });
+            localStorage.setItem('assembly_media', JSON.stringify(mediaList));
+
+            alert("تم إضافة العمل بنجاح!");
+            document.getElementById('addMediaForm').reset();
+            
+            // إعادة تعيين منطقة السحب والإفلات
+            uploadedPosterBase64 = "";
+            dropText.textContent = "📁 اسحب صورة الغلاف هنا أو اضغط للاختيار من الجهاز";
+            dropZone.style.borderColor = "var(--border-color)";
+
+            renderMedia();
+            switchTab('home');
+        }
+
+        function deleteSelectedMedia(event) {
+            event.preventDefault();
+            const selectIndex = document.getElementById('mediaSelectToDelete').value;
+            if (selectIndex !== "") {
+                if (confirm("هل أنت متأكد من حذف هذا العمل نهائياً؟")) {
+                    mediaList.splice(selectIndex, 1);
+                    localStorage.setItem('assembly_media', JSON.stringify(mediaList));
+                    renderMedia();
+                    alert("تم حذف العمل بنجاح!");
+                }
+            }
+        }
+
+        function filterCategory(section, category, btn) {
+            const container = document.getElementById(section + '-filters');
+            container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const grid = document.getElementById(section + '-grid');
+            grid.querySelectorAll('.media-card').forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function openPlayer(title, videoUrl) {
+            const modal = document.getElementById('videoModal');
+            document.getElementById('modalTitle').textContent = title;
+            const video = document.getElementById('modalVideo');
+            
+            video.src = videoUrl;
+            video.load();
+            modal.style.display = 'flex';
+            video.play().catch(error => {
+                console.log("التشغيل يتطلب تفاعل المستخدم:", error);
+            });
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            video.pause();
+            video.src = ""; 
+            modal.style.display = 'none';
+        }
+
+        window.onload = function() {
+            renderMedia();
+            renderDevFriends();
+        };
+    </script>
+</body>
+</html>
